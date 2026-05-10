@@ -1,0 +1,25 @@
+[project]
+name = "dora-vosk"
+version = "0.1.0"
+authors = [{ name = "Your Name", email = "email@email.com" }]
+description = "dora-vosk"
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.8"
+
+dependencies = [
+    "dora-rs==0.5.0",
+    "vosk>=0.3.45",
+]
+
+[dependency-groups]
+dev = ["pytest >=8.1.1", "ruff >=0.9.1"]
+
+[project.scripts]
+dora-vosk = "dora_vosk.main:main"
+
+[tool.ruff.lint]
+extend-select = [
+  "D",   # pydocstyle
+  "UP"
+]

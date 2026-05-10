@@ -1,0 +1,17 @@
+nodes:
+  - id: dora-microphone
+    build: pip install "git+https://github.com/dora-rs/dora-hub.git#egg=dora-microphone&subdirectory=node-hub/dora-microphone"
+    path: dora-microphone
+    inputs:
+      tick: dora/timer/millis/500
+    outputs:
+      - audio
+
+  - id: dora-vosk
+    # build: pip install ./dora-vosk
+    path: dora-vosk/dora_vosk/main.py
+    # path: dora-vosk
+    inputs:
+      audio: dora-microphone/audio
+    outputs:
+      - text
