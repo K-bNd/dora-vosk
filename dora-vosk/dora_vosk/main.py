@@ -32,8 +32,8 @@ BAD_SENTENCES = [
     " The",
 ]
 
-SAMPLE_RATE = int(os.getenv('SAMPLE_RATE', '16000'))
-BLOCKSIZE = int(os.getenv('BLOCKSIZE', '8000'))  # 0.5 seconds at 16000 Hz
+SAMPLE_RATE = int(os.getenv("SAMPLE_RATE", "16000"))
+BLOCKSIZE = int(os.getenv("BLOCKSIZE", "8000"))  # 0.5 seconds at 16000 Hz
 
 
 def remove_text_noise(text: str, text_noise="") -> str:
@@ -81,36 +81,37 @@ def main():
     print("Vosk model loaded")
 
     for event in node:
-        if event["type"] == "INPUT":
-            if event["id"] == "audio":
+        if event["type"] == "INPUT" and event["id"] == "audio":
+            data = event["value"].to_numpy()
+            if data.dtype != "int16":
+                data = (data * 32767).astype("int16")
 
-                data = event['value'].to_numpy()
+            # Feed to Vosk recognizer
+            if recognizer.AcceptWaveform(data.tobytes()):
+                # Final result
+                result_str = recognizer.Result()
+                result = json.loads(result_str)
 
-                # Feed to Vosk recognizer
-                if recognizer.AcceptWaveform(data.tobytes()):
-                    # Final result
-                    result_str = recognizer.Result()
-                    result = json.loads(result_str)
+                text = result.get("text", "").strip()
 
-                    text = result.get('text', '').strip()
-
-                    if text:
-                        print(f"\nFinal: {text}")
-                        text = process_text(text)
-                        node.send_output(
-                            output_id="text", data=pa.array([text]), metadata={},
-                        )
-                else:
-                    print("Partial....")
-                    # Partial result
-                    partial_str = recognizer.PartialResult()
-                    partial = json.loads(partial_str)
-
-                    if partial.get('partial'):
-                        print(f"Partial: {partial['partial']}", end='\r')
+                if text:
+                    print(f"\nFinal: {text}")
+                    text = process_text(text)
                     node.send_output(
-                        output_id="text", data=pa.array([partial.get('partial')]), metadata={},
+                        output_id="text",
+                        data=pa.array([text]),
+                        metadata={},
                     )
+            else:
+                # Partial result
+                partial_str = recognizer.PartialResult()
+                partial = json.loads(partial_str)
+
+                node.send_output(
+                    output_id="text",
+                    data=pa.array([partial.get("partial")]),
+                    metadata={},
+                )
 
 
 if __name__ == "__main__":
