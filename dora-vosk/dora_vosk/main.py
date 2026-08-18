@@ -76,7 +76,7 @@ def main():
     """Run Vosk Model for speech recognition."""
     node = Node()
     print("Loading Vosk model...")
-    model = Model(lang="en-us")
+    model = Model(model_name=os.getenv("MODEL_NAME", "vosk-model-small-en-us-0.15"))
     recognizer = KaldiRecognizer(model, SAMPLE_RATE)
     print("Vosk model loaded")
 

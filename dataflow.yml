@@ -8,10 +8,12 @@ nodes:
       - audio
 
   - id: dora-vosk
-    # build: pip install ./dora-vosk
     path: dora-vosk/dora_vosk/main.py
-    # path: dora-vosk
     inputs:
       audio: dora-microphone/audio
     outputs:
       - text
+    env:
+      MODEL_NAME: "vosk-model-small-fr-0.22"
+      SAMPLE_RATE: "16000"
+      BLOCKSIZE: "8000"
